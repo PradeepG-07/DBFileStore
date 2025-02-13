@@ -1,0 +1,23 @@
+{
+  "name": "dbfilestore",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --watch index.js",
+    "debug": "node --inspect index.js"
+  },
+  "keywords": [
+    "DBFilestore, filestore, store files"
+  ],
+  "author": "Golla Pradeep Kumar",
+  "license": "ISC",
+  "description": "A simple file storage service using Node.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
