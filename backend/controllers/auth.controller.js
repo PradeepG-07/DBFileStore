@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET,users } from '../utils/index.util.js';
+import { hashPassword, JWT_SECRET,users } from '../utils/index.util.js';
+import User from '../models/user.model.js';
+import ApiResponse from '../utils/ApiResponse.js';
+import ApiError from '../utils/ApiError.js';
 
 // Signup function
 export const signup = async (req, res) => {
@@ -8,19 +11,21 @@ export const signup = async (req, res) => {
 
     try {
         
-        const existingUser = users.filter(user=>user.email==email);
+        const existingUser = await User.findOne({email: email});
         
-        if(existingUser.length>0){
-            res.status(400).json({message: "Email already exists"});
+        if(existingUser){
+            res.status(422).json(new ApiError(422,error,"Email already exists."));
             return ;
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = { id: users.length+1,fullname, email, password: hashedPassword };
-        users.push(newUser);
-        
-        res.status(201).json({ message: 'User registered successfully!' });
+        const hashedPassword = hashPassword(password);
+        const newUser = User.create({
+            fullname,
+            email,
+            password: hashedPassword
+        })        
+        res.status(201).json(new ApiResponse(201,newUser,"User created successfully"));
     } catch (error) {
-        res.status(500).json({ message: 'Error registering user', error });
+        res.status(500).json(new ApiError(500,error,"Error registering user"));
     }
 };
 
@@ -30,21 +35,17 @@ export const signin = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = users.find(user => user.email === email);
+        const user = await User.findOne({email: email}).select("-__v");
+        const isPasswordValid = await bcrypt.compare(password, user?.password || "invalid-passwordkfjldsjfldsajkdsjgjd");
         
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        if (!user || !isPasswordValid) {
+            return res.status(422).json(new ApiError(422,null,"Invalid username or password"));
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' });
-        }
-
-        const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ message: 'User signed in successfully', token,user });
+        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json(new ApiResponse(200,{token,user},"User signed in successfully."));
     } catch (error) {
-        res.status(500).json({ message: 'Error signing in', error });
+        res.status(500).json(new ApiError(500,error,"Error signing in"));
     }
 };
 

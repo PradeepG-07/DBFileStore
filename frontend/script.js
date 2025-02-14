@@ -54,7 +54,7 @@ async function getFiles(){
         return null;
     }
     const result = await response.json();
-    files=result.files;
+    files=result.data.files;
     
     renderFiles();
     return files;
@@ -112,8 +112,8 @@ signInForm.addEventListener('submit', async (e) => {
 
         const result = await response.json();
         // Assuming the response contains a token and user info
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.user));
 
         authSection.classList.add('d-none');
         dashboardSection.classList.remove('d-none');

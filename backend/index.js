@@ -6,6 +6,8 @@ import authMiddleware from "./middlewares/auth.middleware.js";
 import userRouter from "./routes/user.route.js";
 import fs from "fs";
 import path from "path";
+import connectToDatabse from "./utils/database.js";
+import seedToDb from "./utils/seed.js";
 
 const app = express();
 const port = 8000;
@@ -51,6 +53,14 @@ app.get("/uploads/:filename/:token",authMiddleware,function (req,res){
 
 app.use("/auth",authRouter);
 app.use("/user",authMiddleware,userRouter);
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
-});
+
+connectToDatabse().then(()=>{
+    app.listen(port, async() => {
+        console.log(`Example app listening at http://localhost:${port}`);
+        await seedToDb();
+    });
+})
+.catch((err)=>{
+    console.log("Error connecting to db");
+    process.exit(0);
+})
