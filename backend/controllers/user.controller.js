@@ -8,9 +8,9 @@ const uploadsDir = path.resolve("./uploads");
 
 
 const getUserInfo = async (req, res) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId).select("-__v -password");
+    const userId = req.params?.id;
     try {
+        const user = await User.findById(userId).select("-__v -password");
         if (user) {
             res.status(200).json(new ApiResponse(200,user,"User details fetched successfully."));
         } else {

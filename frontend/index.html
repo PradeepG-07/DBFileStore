@@ -13,7 +13,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <i class="bi bi-folder2-open me-2"></i>
-                FileVault
+                DBFileStore
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -25,6 +25,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="navSignUp">Sign Up</a>
+                    </li>
+                    <li class="nav-item">
+                        <button id="navSignOut" class="btn text-decoration-none text-white px-0 d-none">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Sign Out
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -96,7 +102,7 @@
                 <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                     <div class="position-sticky pt-3">
                         <div class="px-3 py-4 border-bottom">
-                            <h4 class="h5">FileVault</h4>
+                            <h4 class="h5">DBFileStore</h4>
                         </div>
                         <ul class="nav flex-column">
                             <li class="nav-item">
@@ -127,6 +133,7 @@
                     <div id="filesSection">
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                             <h1 class="h2">My Files</h1>
+                            <input type="text" name="search" id="search" class="form-control" style="width: fit-content;" placeholder="Search">
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover">
