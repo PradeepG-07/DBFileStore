@@ -10,7 +10,8 @@ userRouter.get('/files', userController.getUserFiles);
 userRouter.get('/:id', userController.getUserInfo);
 
 // Add an image
-userRouter.post('/files',upload.single("image"), userController.addUserFiles);
+// userRouter.post('/files',upload.single("image"), userController.addUserFiles);
+userRouter.post('/files', userController.addUserFiles);
 
 // Delete an image
 userRouter.delete('/files/:fileId', userController.deleteUserFiles);

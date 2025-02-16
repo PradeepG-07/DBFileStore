@@ -52,25 +52,41 @@ const getUserFiles = async(req, res) => {
 
 const addUserFiles = (req, res) => {
     const userId = req.user.id;
-    const file = req.file;
-    if (!file) {
-        return res.status(422).json(new ApiError(422,null,"No file Uploaded"));
-    }
-
-    const filePath = path.join(uploadsDir, req.user.id+"-#-"+file.originalname);
+    const fileName = path.join(uploadsDir, userId+"-#-"+req.headers["x-file-name"]);
     try {
-        if(fs.existsSync(filePath)){
-            res.status(201).json(new ApiResponse(201,null,"File uploaded successfully."));
-        }
-        else{
-            return res.status(500).json(new ApiError(500,null,"Error saving file"));
-        }
+        const writeStream = fs.createWriteStream(fileName, { flags: 'a' });
+        req.on("data", (data) => {
+            writeStream.write(data);
+        });
+        req.on("end", () => {
+            writeStream.end();
+            res.status(201).json(new ApiResponse(201, null, "Chunk uploaded successfully."));
+        });
     } catch (error) {
         res.status(500).json(new ApiError(500,error,"Internal server error"));
     }
+};
+// const addUserFiles = (req, res) => {
+//     const userId = req.user.id;
+//     const file = req.file;
+//     if (!file) {
+//         return res.status(422).json(new ApiError(422,null,"No file Uploaded"));
+//     }
+
+//     const filePath = path.join(uploadsDir, req.user.id+"-#-"+file.originalname);
+//     try {
+//         if(fs.existsSync(filePath)){
+//             res.status(201).json(new ApiResponse(201,null,"File uploaded successfully."));
+//         }
+//         else{
+//             return res.status(500).json(new ApiError(500,null,"Error saving file"));
+//         }
+//     } catch (error) {
+//         res.status(500).json(new ApiError(500,error,"Internal server error"));
+//     }
     
    
-};
+// };
 
 const deleteUserFiles = (req, res) => {
     const userId = req.user.id;

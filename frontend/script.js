@@ -309,42 +309,34 @@ dropZone.addEventListener('drop', async (e) => {
 });
 
 async function handleFiles(file) {
-    const formData = new FormData();
-    formData.append('image', file);
-
     const token = localStorage.getItem('token');
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${baseUrl}/user/files`, true);
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
-    xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-            const percentComplete = (event.loaded / event.total) * 100;
+    const CHUNK_SIZE = 100000; //100kb
+    const fileReader = new FileReader();
+    const NO_OF_CHUNKS = file.size/CHUNK_SIZE;
+    fileReader.onload=async(ev)=>{
+        uploadProgress.classList.remove("d-none");
+        for (let chunkId = 0; chunkId < NO_OF_CHUNKS; chunkId++) {
+            const chunk = ev.target.result.slice(chunkId*CHUNK_SIZE,chunkId*CHUNK_SIZE+CHUNK_SIZE);
+            await fetch(baseUrl+"/user/files",{
+                method: "POST",
+                headers: {
+                    "content-type": file.type,
+                    "authorization":`Bearer ${token}`,
+                    "x-file-name": file.name
+                },
+                body: chunk
+            })
+            const percentComplete = Math.round(((chunkId + 1) / NO_OF_CHUNKS) * 100,0);
             progressBar.style.width = `${percentComplete}%`;
             progressBar.setAttribute('aria-valuenow', percentComplete);
         }
-    };
+        uploadProgress.classList.add("d-none");
+        setTimeout(()=>{
 
-    xhr.onload = async () => {
-        if (xhr.status >= 200 && xhr.status <= 210) {
-            alert('File uploaded successfully');
-            await getFiles();
-            renderFiles(files);
-        } else {
-            alert('File upload failed');
-        }
-        uploadProgress.classList.add('d-none');
-        progressBar.style.width = '0%';
-        progressBar.setAttribute('aria-valuenow', 0);
-    };
-
-    xhr.onerror = () => {
-        alert('File upload failed');
-        uploadProgress.classList.add('d-none');
-        progressBar.style.width = '0%';
-        progressBar.setAttribute('aria-valuenow', 0);
-    };
-
-    uploadProgress.classList.remove('d-none');
-    xhr.send(formData);
+            alert("File uploaded successfully.");
+        },500);
+    }
+    fileReader.readAsArrayBuffer(file);
+    
 }
